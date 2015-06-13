@@ -18,12 +18,13 @@ func main()  {
     defer cleanExit()
 
     fmt.Println("Connecting...")
-    _ = connectToServer()
+    connection := connectToServer()
     fmt.Println("Connected.")
 
     //term := initializeCurses()
     //goncurses.CBreak(true)
 
+    ReadFromServer(connection)
     //_ = term.GetChar() // block until the user starts typing
     //goncurses.UnGetChar(c) buzz GetChar is in window but ungetchar is in gc??? and they are different types???
 }
