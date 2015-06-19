@@ -1,33 +1,45 @@
 package main
 
 import (
-    "fmt"
-    "net"
-    "bitbucket.org/scirocco6/icb"
+	"fmt"
+	"net"
+
+	"bitbucket.org/scirocco6/icb"
 )
 
+// ReadFromServer is the main server read loop
 func ReadFromServer(connection net.Conn) {
-    for {
-        var length []byte = make([]byte, 1)
-        var packet icb.IcbPacket
+	for {
+		var packet icb.Packet
 
-        connection.Read(length)
-        left := int(length[0])
-        for left > 0 {
-            buffer := ReadLengthBytesFromServer(left, connection)
-            left -= len(buffer)
+		length := ReadLengthByteFromConnection(connection)
+		buffer := ReadLengthBytesFromServer(length, connection)
+		//		fmt.Printf("length: %v\n  data:\n\t%v\n\t\"%s\"\n", length, buffer, buffer)
 
-            packet.Write(buffer)
-        }
-        message := packet.Decode()
-        fmt.Println(message)
-    }
+		packet.Write(buffer)
+
+		message := packet.Decode()
+		fmt.Println(message)
+	}
 }
 
-func ReadLengthBytesFromServer(length int, connection net.Conn)([]byte) {
-    var buffer []byte = make([]byte, length)
-    
-    connection.Read(buffer)
-    
-    return buffer
+// ReadLengthByteFromConnection reads the next byte from the connection and returns it as an int
+func ReadLengthByteFromConnection(connection net.Conn) int {
+	var length = make([]byte, 1)
+	connection.Read(length)
+
+	return int(length[0])
+}
+
+// ReadLengthBytesFromServer reads an entire packet of length from the connection returns a byte array
+func ReadLengthBytesFromServer(length int, connection net.Conn) []byte {
+	var buffer = make([]byte, length)
+	var bytesRead = 0
+
+	for bytesRead < length {
+		r, _ := connection.Read(buffer[bytesRead:])
+		bytesRead += r
+	}
+
+	return buffer
 }
