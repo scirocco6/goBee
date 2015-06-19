@@ -63,7 +63,7 @@ func connectToServer() net.Conn {
 		loginPacket := icb.CreatePacket("login", "goBee", "goBee6", "goGroup", "login", "\000")
 		loginPacket.SendTo(connection)
 
-		// TODO: need to check results form the login attempt rather than just assuming it worked
+		// TODO: need to check results from the login attempt rather than just assuming it worked
 		// on the plus side, not suceeding doesn't prevent one from chatting
 
 		beepPacket := icb.CreatePacket("beep", "0110")
