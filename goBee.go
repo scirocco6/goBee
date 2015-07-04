@@ -1,32 +1,48 @@
 package main
 
 import (
-	//"bufio"
+
 	//"io"
+
 	"fmt"
 	"log"
 	"net"
 	"os"
 	"os/signal"
+	"runtime"
+	"sync"
 	"syscall"
 	"time"
 
 	"bitbucket.org/scirocco6/icb"
 	"github.com/rthornton128/goncurses"
+	//"github.com/bobappleyard/readline"
 )
 
+//var term *goncurses.Window // the global hook to the terminal
+var screenMutex = &sync.Mutex{} // global lock for screen output
+
 func main() {
-	//    catchSignals()
-	//defer cleanExit()
+	catchSignals()
+	defer cleanExit()
 
 	fmt.Println("Connecting...")
 	connection := connectToServer()
 	fmt.Println("Connected.")
 
-	//term := initializeCurses()
-	//goncurses.CBreak(true)
+	//	term = initializeCurses()
+	//	term.Clear()
+	//	fmt.Println("normal print")
+	//	term.Println("curses print")
+	//	term.Refresh()
+	//_ = term.GetChar()
 
+	//cleanExit()
+	//var mutex = &sync.Mutex{}
+	runtime.GOMAXPROCS(2)
 	ReadFromServer(connection)
+	ReadFromUser()
+
 	//_ = term.GetChar() // block until the user starts typing
 	//goncurses.UnGetChar(c) buzz GetChar is in window but ungetchar is in gc??? and they are different types???
 }
@@ -49,6 +65,7 @@ func initializeCurses() *goncurses.Window {
 		cleanExit()
 	}
 
+	//goncurses.CBreak(true)
 	return term
 }
 
@@ -64,7 +81,7 @@ func connectToServer() net.Conn {
 		loginPacket.SendTo(connection)
 
 		// TODO: need to check results from the login attempt rather than just assuming it worked
-		// on the plus side, not suceeding doesn't prevent one from chatting
+		// on the plus side, not suceeding doesn't prevent one from chatting, icb is a weird protocol
 
 		beepPacket := icb.CreatePacket("beep", "0110")
 		beepPacket.SendTo(connection)
@@ -84,6 +101,12 @@ func connectToServer() net.Conn {
 	log.Fatal("Connecting:", err)
 	cleanExit()
 	return nil
+}
+
+func PrintToScreen(message string) {
+	screenMutex.Lock()
+	fmt.Println(message)
+	screenMutex.Unlock()
 }
 
 func cleanExit() {

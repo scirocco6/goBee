@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net"
 
 	"bitbucket.org/scirocco6/icb"
@@ -9,18 +8,22 @@ import (
 
 // ReadFromServer is the main server read loop
 func ReadFromServer(connection net.Conn) {
-	for {
-		var packet icb.Packet
+	go func() {
+		for {
+			var packet icb.Packet
 
-		length := ReadLengthByteFromConnection(connection)
-		buffer := ReadLengthBytesFromServer(length, connection)
-		//		fmt.Printf("length: %v\n  data:\n\t%v\n\t\"%s\"\n", length, buffer, buffer)
+			length := ReadLengthByteFromConnection(connection)
+			buffer := ReadLengthBytesFromServer(length, connection)
+			//		fmt.Printf("length: %v\n  data:\n\t%v\n\t\"%s\"\n", length, buffer, buffer)
 
-		packet.Write(buffer)
+			packet.Write(buffer)
 
-		message := packet.Decode()
-		fmt.Println(message)
-	}
+			message := packet.Decode()
+			//term.Println(message)
+			//term.Refresh()
+			PrintToScreen(message)
+		}
+	}()
 }
 
 // ReadLengthByteFromConnection reads the next byte from the connection and returns it as an int
