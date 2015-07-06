@@ -1,9 +1,6 @@
 package main
 
 import (
-
-	//"io"
-
 	"fmt"
 	"log"
 	"net"
@@ -16,7 +13,6 @@ import (
 
 	"bitbucket.org/scirocco6/icb"
 	"github.com/rthornton128/goncurses"
-	//"github.com/bobappleyard/readline"
 )
 
 //var term *goncurses.Window // the global hook to the terminal
@@ -41,7 +37,7 @@ func main() {
 	//var mutex = &sync.Mutex{}
 	runtime.GOMAXPROCS(2)
 	ReadFromServer(connection)
-	ReadFromUser()
+	ReadFromUser(connection)
 
 	//_ = term.GetChar() // block until the user starts typing
 	//goncurses.UnGetChar(c) buzz GetChar is in window but ungetchar is in gc??? and they are different types???
@@ -103,6 +99,7 @@ func connectToServer() net.Conn {
 	return nil
 }
 
+// PrintToScreen locks the screen mutex then prints the string it is passed
 func PrintToScreen(message string) {
 	screenMutex.Lock()
 	fmt.Println(message)
