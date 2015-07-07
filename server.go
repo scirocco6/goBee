@@ -14,8 +14,10 @@ func ConnectToServer() net.Conn {
 	if err == nil {
 		connection.SetDeadline(time.Time{}) //   do not time out on i/o operations
 
-		var b = make([]byte, 1)
-		connection.Read(b) // read the protocol version then ignore it :)
+		_ = ReadLengthByteFromConnection // read the protocol version then ignore it :)
+
+		loginPacket := icb.CreatePacket("login", "goBee", "goBee6", "goGroup", "login", "\000")
+		loginPacket.SendTo(connection)
 
 		return connection
 	}
@@ -31,8 +33,7 @@ func ReadFromServer(connection net.Conn) {
 		for {
 			packet := ReadPacketFromConnection(connection)
 			message := packet.Decode()
-			//term.Println(message)
-			//term.Refresh()
+
 			PrintToScreen(message)
 		}
 	}()

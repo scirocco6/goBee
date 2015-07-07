@@ -9,8 +9,6 @@ import (
 	"sync"
 	"syscall"
 
-	"bitbucket.org/scirocco6/icb"
-
 	"github.com/rthornton128/goncurses"
 )
 
@@ -23,14 +21,17 @@ func main() {
 
 	fmt.Println("Connecting...")
 	connection := ConnectToServer()
-	fmt.Println("Connected.")
 
-	loginPacket := icb.CreatePacket("login", "goBee", "goBee6", "goGroup", "login", "\000")
-	loginPacket.SendTo(connection)
-	_ = ReadPacketFromConnection(connection)
-
-	// TODO: need to check results from the login attempt rather than just assuming it worked
-	// on the plus side, not succeeding doesn't prevent one from chatting, icb is a weird protocol
+	//result := ReadPacketFromConnection(connection)
+	//message := result.Decode()
+	//
+	//	if strings.HasPrefix(message, "[=Login=]") {
+	//		PrintToScreen(message)
+	//	} else {
+	//		PrintToScreen(message)
+	//		PrintToScreen("Unable to login to server")
+	//		cleanExit()
+	//	}
 
 	//	term = initializeCurses()
 	//	term.Clear()
@@ -70,6 +71,9 @@ func initializeCurses() *goncurses.Window {
 // PrintToScreen locks the screen mutex then prints the string it is passed
 func PrintToScreen(message string) {
 	screenMutex.Lock()
+	//term.Println(message)
+	//term.Refresh()
+
 	fmt.Println(message)
 	screenMutex.Unlock()
 }
@@ -79,6 +83,5 @@ func cleanExit() {
 	goncurses.CBreak(false)
 	goncurses.Echo(true)
 	goncurses.End()
-	fmt.Println("Cleaning up...")
 	os.Exit(1)
 }

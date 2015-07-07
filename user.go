@@ -61,6 +61,10 @@ func ReadFromUser(connection net.Conn) {
 						fmt.Println("Usage: /g group")
 					}
 				}
+			case "q":
+				{
+					cleanExit()
+				}
 			default:
 				{
 					fmt.Printf("Unrecognized command \n'/%s'\n", message)
