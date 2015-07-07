@@ -12,9 +12,6 @@ import (
 
 // ReadFromUser is the main user input thread
 func ReadFromUser(connection net.Conn) {
-	//beep, _ := regexp.Compile("/beep[\t\n\f\r ]([^\t\n\f\r ]+)")
-	//command := regexp.MustCompile("/([^\t\n\f\r ]+)[\t\n\f\r ]*(.*)")
-
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		message, _ := reader.ReadString('\n')
@@ -23,48 +20,49 @@ func ReadFromUser(connection net.Conn) {
 			continue
 		}
 
-		var packet *icb.Packet
-		var err error
-
-		if strings.HasPrefix(message, "/") { // handle commands
-			message = message[1:]
-			command := strings.SplitN(message, " ", 3)
-
-			switch command[0] {
-			case "beep":
-				{
-					packet, err = beep(command)
-				}
-			case "m": // send a private message to a user
-				{
-					packet, err = privateMessage(command)
-				}
-			case "w": // obtain a listing of who is on
-				{
-					packet = globalWho(command)
-				}
-			case "g": // join a group
-				{
-					packet, err = join(command)
-				}
-			case "q": // quit
-				{
-					cleanExit()
-				}
-			default:
-				{
-					err = errors.New("Unrecognized command \n'/" + message + "'\n")
-				}
-			}
-		} else { // by defualt send a public message to the channel
-			packet = icb.CreatePacket("public", message)
-		}
+		packet, err := parse(message)
 		if err == nil && packet != nil {
 			packet.SendTo(connection)
 		} else if err != nil {
 			PrintToScreen(err.Error())
 		}
 	}
+}
+
+func parse(message string) (*icb.Packet, error) {
+	if strings.HasPrefix(message, "/") { // handle commands
+		message = message[1:]
+		command := strings.SplitN(message, " ", 3)
+
+		switch command[0] {
+		case "beep":
+			{
+				return beep(command)
+			}
+		case "m": // send a private message to a user
+			{
+				return privateMessage(command)
+			}
+		case "w": // obtain a listing of who is on
+			{
+				return globalWho(command), nil
+			}
+		case "g": // join a group
+			{
+				return join(command)
+			}
+		case "q": // quit
+			{
+				cleanExit()
+			}
+		default:
+			{
+				return nil, errors.New("Unrecognized command \n'/" + message + "'\n")
+			}
+		}
+	}
+	// by defualt send a public message to the channel
+	return icb.CreatePacket("public", message), nil
 }
 
 func beep(parameters []string) (*icb.Packet, error) {
