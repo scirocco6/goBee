@@ -79,15 +79,6 @@ func connectToServer() net.Conn {
 		// TODO: need to check results from the login attempt rather than just assuming it worked
 		// on the plus side, not suceeding doesn't prevent one from chatting, icb is a weird protocol
 
-		beepPacket := icb.CreatePacket("beep", "0110")
-		beepPacket.SendTo(connection)
-
-		publicPacket := icb.CreatePacket("public", "hi everyone")
-		publicPacket.SendTo(connection)
-
-		privatePacket := icb.CreatePacket("private", "0110", "hi six")
-		privatePacket.SendTo(connection)
-
 		whoPacket := icb.CreatePacket("global_who")
 		whoPacket.SendTo(connection)
 
