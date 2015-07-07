@@ -53,8 +53,8 @@ func ReadFromUser(connection net.Conn) {
 						packet = icb.CreatePacket("local_who", command[1])
 					}
 				}
-			case "g":
-				{ // join a group
+			case "g": // join a group
+				{
 					if len(command) == 1 {
 						packet = icb.CreatePacket("join", command[1])
 					} else {

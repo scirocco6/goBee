@@ -22,17 +22,6 @@ func main() {
 	fmt.Println("Connecting...")
 	connection := ConnectToServer()
 
-	//result := ReadPacketFromConnection(connection)
-	//message := result.Decode()
-	//
-	//	if strings.HasPrefix(message, "[=Login=]") {
-	//		PrintToScreen(message)
-	//	} else {
-	//		PrintToScreen(message)
-	//		PrintToScreen("Unable to login to server")
-	//		cleanExit()
-	//	}
-
 	//	term = initializeCurses()
 	//	term.Clear()
 	//	fmt.Println("normal print")
