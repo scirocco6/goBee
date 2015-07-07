@@ -34,7 +34,7 @@ func ReadFromUser(connection net.Conn) {
 					if len(command) == 2 {
 						packet = icb.CreatePacket("beep", command[1])
 					} else {
-						fmt.Println("Usage: /beep nick")
+						PrintToScreen("Usage: /beep nick")
 					}
 				}
 			case "m": // send a private message to a user
@@ -42,7 +42,7 @@ func ReadFromUser(connection net.Conn) {
 					if len(command) == 3 {
 						packet = icb.CreatePacket("private", command[1], command[2])
 					} else {
-						fmt.Println("Usage: /m nick message")
+						PrintToScreen("Usage: /m nick message")
 					}
 				}
 			case "w": // obtain a listing of who is on
@@ -58,7 +58,7 @@ func ReadFromUser(connection net.Conn) {
 					if len(command) == 1 {
 						packet = icb.CreatePacket("join", command[1])
 					} else {
-						fmt.Println("Usage: /g group")
+						PrintToScreen("Usage: /g group")
 					}
 				}
 			case "q":
