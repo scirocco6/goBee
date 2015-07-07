@@ -9,6 +9,8 @@ import (
 	"sync"
 	"syscall"
 
+	"bitbucket.org/scirocco6/icb"
+
 	"github.com/rthornton128/goncurses"
 )
 
@@ -23,21 +25,24 @@ func main() {
 	connection := ConnectToServer()
 	fmt.Println("Connected.")
 
+	loginPacket := icb.CreatePacket("login", "goBee", "goBee6", "goGroup", "login", "\000")
+	loginPacket.SendTo(connection)
+	_ = ReadPacketFromConnection(connection)
+
+	// TODO: need to check results from the login attempt rather than just assuming it worked
+	// on the plus side, not succeeding doesn't prevent one from chatting, icb is a weird protocol
+
 	//	term = initializeCurses()
 	//	term.Clear()
 	//	fmt.Println("normal print")
 	//	term.Println("curses print")
 	//	term.Refresh()
 	//_ = term.GetChar()
+	//goncurses.UnGetChar(c) buzz GetChar is in window but ungetchar is in gc??? and they are different types???
 
-	//cleanExit()
-	//var mutex = &sync.Mutex{}
 	runtime.GOMAXPROCS(2)
 	ReadFromServer(connection)
 	ReadFromUser(connection)
-
-	//_ = term.GetChar() // block until the user starts typing
-	//goncurses.UnGetChar(c) buzz GetChar is in window but ungetchar is in gc??? and they are different types???
 }
 
 func catchSignals() {

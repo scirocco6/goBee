@@ -31,14 +31,18 @@ func ReadFromUser(connection net.Conn) {
 			switch command[0] {
 			case "beep":
 				{
-					if len(command) > 1 { // allow /beep user message even though no message is sent
+					if len(command) == 2 {
 						packet = icb.CreatePacket("beep", command[1])
+					} else {
+						fmt.Println("Usage: /beep nick")
 					}
 				}
 			case "m": // send a private message to a user
 				{
 					if len(command) == 3 {
 						packet = icb.CreatePacket("private", command[1], command[2])
+					} else {
+						fmt.Println("Usage: /m nick message")
 					}
 				}
 			case "w": // obtain a listing of who is on
@@ -47,6 +51,14 @@ func ReadFromUser(connection net.Conn) {
 						packet = icb.CreatePacket("global_who")
 					} else { // listing for who is in a particular group or group a user is in
 						packet = icb.CreatePacket("local_who", command[1])
+					}
+				}
+			case "g":
+				{ // join a group
+					if len(command) == 1 {
+						packet = icb.CreatePacket("join", command[1])
+					} else {
+						fmt.Println("Usage: /g group")
 					}
 				}
 			default:
@@ -59,7 +71,5 @@ func ReadFromUser(connection net.Conn) {
 			packet = icb.CreatePacket("public", message)
 		}
 		packet.SendTo(connection)
-
-		PrintToScreen(message)
 	}
 }

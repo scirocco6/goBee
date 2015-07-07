@@ -17,12 +17,6 @@ func ConnectToServer() net.Conn {
 		var b = make([]byte, 1)
 		connection.Read(b) // read the protocol version then ignore it :)
 
-		loginPacket := icb.CreatePacket("login", "goBee", "goBee6", "goGroup", "login", "\000")
-		loginPacket.SendTo(connection)
-
-		// TODO: need to check results from the login attempt rather than just assuming it worked
-		// on the plus side, not suceeding doesn't prevent one from chatting, icb is a weird protocol
-
 		return connection
 	}
 
@@ -35,20 +29,25 @@ func ConnectToServer() net.Conn {
 func ReadFromServer(connection net.Conn) {
 	go func() {
 		for {
-			var packet icb.Packet
-
-			length := ReadLengthByteFromConnection(connection)
-			buffer := ReadLengthBytesFromServer(length, connection)
-			//		fmt.Printf("length: %v\n  data:\n\t%v\n\t\"%s\"\n", length, buffer, buffer)
-
-			packet.Write(buffer)
-
+			packet := ReadPacketFromConnection(connection)
 			message := packet.Decode()
 			//term.Println(message)
 			//term.Refresh()
 			PrintToScreen(message)
 		}
 	}()
+}
+
+// ReadPacketFromConnection will read a complete packet from the connection and return it
+func ReadPacketFromConnection(connection net.Conn) icb.Packet {
+	var packet icb.Packet
+
+	length := ReadLengthByteFromConnection(connection)
+	buffer := ReadLengthBytesFromServer(length, connection)
+	//		fmt.Printf("length: %v\n  data:\n\t%v\n\t\"%s\"\n", length, buffer, buffer)
+
+	packet.Write(buffer)
+	return packet
 }
 
 // ReadLengthByteFromConnection reads the next byte from the connection and returns it as an int
