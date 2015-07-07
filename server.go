@@ -1,10 +1,35 @@
 package main
 
 import (
+	"log"
 	"net"
+	"time"
 
 	"bitbucket.org/scirocco6/icb"
 )
+
+// ConnectToServer returns a connection to the icb server
+func ConnectToServer() net.Conn {
+	connection, err := icb.Connect("default.icb.net", "7326")
+	if err == nil {
+		connection.SetDeadline(time.Time{}) //   do not time out on i/o operations
+
+		var b = make([]byte, 1)
+		connection.Read(b) // read the protocol version then ignore it :)
+
+		loginPacket := icb.CreatePacket("login", "goBee", "goBee6", "goGroup", "login", "\000")
+		loginPacket.SendTo(connection)
+
+		// TODO: need to check results from the login attempt rather than just assuming it worked
+		// on the plus side, not suceeding doesn't prevent one from chatting, icb is a weird protocol
+
+		return connection
+	}
+
+	log.Fatal("Connecting:", err)
+	cleanExit()
+	return nil
+}
 
 // ReadFromServer is the main server read loop
 func ReadFromServer(connection net.Conn) {

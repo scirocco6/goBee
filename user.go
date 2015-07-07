@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"net"
 	"os"
 	"strings"
@@ -40,8 +41,15 @@ func ReadFromUser(connection net.Conn) {
 						packet = icb.CreatePacket("private", command[1], command[2])
 					}
 				}
+			case "w": // obtain a listing of who is on
+				{
+					if len(command) == 1 { // obtain listing of who is in every group
+						packet = icb.CreatePacket("global_who")
+					}
+				}
 			default:
 				{
+					fmt.Printf("Unrecognized command \n'/%s'\n", message)
 					continue
 				}
 			}

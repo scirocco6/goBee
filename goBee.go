@@ -3,15 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
-	"net"
 	"os"
 	"os/signal"
 	"runtime"
 	"sync"
 	"syscall"
-	"time"
 
-	"bitbucket.org/scirocco6/icb"
 	"github.com/rthornton128/goncurses"
 )
 
@@ -23,7 +20,7 @@ func main() {
 	defer cleanExit()
 
 	fmt.Println("Connecting...")
-	connection := connectToServer()
+	connection := ConnectToServer()
 	fmt.Println("Connected.")
 
 	//	term = initializeCurses()
@@ -63,31 +60,6 @@ func initializeCurses() *goncurses.Window {
 
 	//goncurses.CBreak(true)
 	return term
-}
-
-func connectToServer() net.Conn {
-	connection, err := icb.Connect("default.icb.net", "7326")
-	if err == nil {
-		connection.SetDeadline(time.Time{}) //   do not time out on i/o operations
-
-		var b = make([]byte, 1)
-		connection.Read(b) // read the protocol version then ignore it :)
-
-		loginPacket := icb.CreatePacket("login", "goBee", "goBee6", "goGroup", "login", "\000")
-		loginPacket.SendTo(connection)
-
-		// TODO: need to check results from the login attempt rather than just assuming it worked
-		// on the plus side, not suceeding doesn't prevent one from chatting, icb is a weird protocol
-
-		whoPacket := icb.CreatePacket("global_who")
-		whoPacket.SendTo(connection)
-
-		return connection
-	}
-
-	log.Fatal("Connecting:", err)
-	cleanExit()
-	return nil
 }
 
 // PrintToScreen locks the screen mutex then prints the string it is passed
