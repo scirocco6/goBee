@@ -62,7 +62,7 @@ func parse(message string) (*icb.Packet, error) {
 		}
 	}
 	// by defualt send a public message to the channel
-	return icb.CreatePacket("public", message), nil
+	return publicMessage(message), nil
 }
 
 func beep(parameters []string) (*icb.Packet, error) {
@@ -71,6 +71,11 @@ func beep(parameters []string) (*icb.Packet, error) {
 	}
 
 	return icb.CreatePacket("beep", parameters[1]), nil
+}
+
+func publicMessage(message string) *icb.Packet {
+
+	return icb.CreatePacket("public", message)
 }
 
 func privateMessage(parameters []string) (*icb.Packet, error) {
