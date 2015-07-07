@@ -45,6 +45,8 @@ func ReadFromUser(connection net.Conn) {
 				{
 					if len(command) == 1 { // obtain listing of who is in every group
 						packet = icb.CreatePacket("global_who")
+					} else { // listing for who is in a particular group or group a user is in
+						packet = icb.CreatePacket("local_who", command[1])
 					}
 				}
 			default:
