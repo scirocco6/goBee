@@ -1,23 +1,28 @@
 package main
 
 import (
-	"bufio"
-	"os"
+	"io"
 	"strings"
 
 	"bitbucket.org/scirocco6/icb"
+	"github.com/bobappleyard/readline"
 )
 
 // ReadFromUser is the main user input thread
 func ReadFromUser() {
 	for {
-		reader := bufio.NewReader(os.Stdin)
-		message, _ := reader.ReadString('\n')
+		//reader := bufio.NewReader(os.Stdin)
+		//message, _ := reader.ReadString('\n')
+		message, err := readline.String("")
+		if err == io.EOF {
+			break
+		}
+
 		message = strings.TrimSuffix(message, "\n")
 		if message == "" {
 			continue
 		}
-
+		readline.AddHistory(message)
 		parse(message)
 	}
 }
