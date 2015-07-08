@@ -40,7 +40,8 @@ func parse(message string) (*icb.Packet, error) {
 			}
 		case "m": // send a private message to a user
 			{
-				return privateMessage(command)
+				privateMessage(command)
+				return nil, nil
 			}
 		case "w": // obtain a listing of who is on
 			{
@@ -74,31 +75,48 @@ func beep(parameters []string) (*icb.Packet, error) {
 }
 
 func publicMessage(message string) {
+	sendable, remainder := messageSplitter(message)
+
+	icb.CreatePacket("public", sendable).Send() // send the first part
+	if remainder != "" {
+		publicMessage(remainder) // send the rest if any
+	}
+}
+
+func privateMessage(parameters []string) {
+	if len(parameters) != 3 {
+		PrintToScreen("Usage: /m nick message")
+	}
+
+	sendPrivateMessage(parameters[1], parameters[2])
+}
+
+func sendPrivateMessage(nick string, message string) {
+	sendable, remainder := messageSplitter(message)
+
+	icb.CreatePacket("private", nick, sendable).Send() // send the first part
+	if remainder != "" {
+		sendPrivateMessage(nick, remainder) // send the rest if any
+	}
+}
+
+// messageSplitter takes a message and breaks it into sendable chunks.  Preference is
+// given to splitting on spaces
+func messageSplitter(message string) (string, string) {
 	maxLength := 240
 
 	if len(message) <= maxLength {
-		icb.CreatePacket("public", message).Send()
-		return
+		return message, ""
 	}
 
-	shortMessage := message[:maxLength]
-	index := strings.LastIndex(shortMessage, " ") // if there are any spaces trim to that instead
+	sendable := message[:maxLength]
+	index := strings.LastIndex(sendable, " ") // if there are any spaces trim to that instead
 	if index == -1 {
 		index = maxLength
 	} else {
-		shortMessage = message[:index] // reduce the short message to the word before the space
+		sendable = message[:index] // reduce the short message to the word before the space
 	}
-
-	publicMessage(shortMessage)      // send the first part
-	publicMessage(message[index+1:]) // send the rest
-}
-
-func privateMessage(parameters []string) (*icb.Packet, error) {
-	if len(parameters) != 3 {
-		return nil, errors.New("Usage: /m nick message")
-	}
-
-	return icb.CreatePacket("private", parameters[1], parameters[2]), nil
+	return sendable, message[index+1:]
 }
 
 func globalWho(parameters []string) *icb.Packet {
