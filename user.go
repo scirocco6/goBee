@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"errors"
-	"net"
 	"os"
 	"strings"
 
@@ -11,7 +10,7 @@ import (
 )
 
 // ReadFromUser is the main user input thread
-func ReadFromUser(connection net.Conn) {
+func ReadFromUser() {
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		message, _ := reader.ReadString('\n')
@@ -22,7 +21,7 @@ func ReadFromUser(connection net.Conn) {
 
 		packet, err := parse(message)
 		if err == nil && packet != nil {
-			packet.SendTo(connection)
+			packet.Send()
 		} else if err != nil {
 			PrintToScreen(err.Error())
 		}
@@ -67,15 +66,28 @@ func parse(message string) (*icb.Packet, error) {
 
 func beep(parameters []string) (*icb.Packet, error) {
 	if len(parameters) != 2 {
-		return nil, errors.New("Usage: /beep nick")
+		PrintToScreen("Usage: /beep nick")
 	}
 
 	return icb.CreatePacket("beep", parameters[1]), nil
 }
 
 func publicMessage(message string) *icb.Packet {
+	maxLength := 240
 
+	if len(message) <= maxLength {
+		return icb.CreatePacket("public", message)
+	}
+
+	shortMessage := message[:maxLength]
+	index := strings.LastIndex(shortMessage, " ") // if there are any spaces trim to that instead
+	if index == -1 {
+		index = maxLength
+	} else {
+		shortMessage = message[:index]
+	}
 	return icb.CreatePacket("public", message)
+
 }
 
 func privateMessage(parameters []string) (*icb.Packet, error) {

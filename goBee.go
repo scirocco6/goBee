@@ -16,11 +16,11 @@ func main() {
 	defer cleanExit()
 
 	fmt.Println("Connecting...")
-	connection := ConnectToServer()
+	ConnectToServer()
 
 	runtime.GOMAXPROCS(2)
-	ReadFromServer(connection)
-	ReadFromUser(connection)
+	ReadFromServer()
+	ReadFromUser()
 }
 
 func catchSignals() {
