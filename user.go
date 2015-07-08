@@ -61,7 +61,8 @@ func parse(message string) (*icb.Packet, error) {
 		}
 	}
 	// by defualt send a public message to the channel
-	return publicMessage(message), nil
+	publicMessage(message)
+	return nil, nil
 }
 
 func beep(parameters []string) (*icb.Packet, error) {
@@ -72,11 +73,12 @@ func beep(parameters []string) (*icb.Packet, error) {
 	return icb.CreatePacket("beep", parameters[1]), nil
 }
 
-func publicMessage(message string) *icb.Packet {
+func publicMessage(message string) {
 	maxLength := 240
 
 	if len(message) <= maxLength {
-		return icb.CreatePacket("public", message)
+		icb.CreatePacket("public", message).Send()
+		return
 	}
 
 	shortMessage := message[:maxLength]
@@ -84,10 +86,11 @@ func publicMessage(message string) *icb.Packet {
 	if index == -1 {
 		index = maxLength
 	} else {
-		shortMessage = message[:index]
+		shortMessage = message[:index] // reduce the short message to the word before the space
 	}
-	return icb.CreatePacket("public", message)
 
+	publicMessage(shortMessage)      // send the first part
+	publicMessage(message[index+1:]) // send the rest
 }
 
 func privateMessage(parameters []string) (*icb.Packet, error) {
