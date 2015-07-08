@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"os"
 	"strings"
 
@@ -19,16 +18,11 @@ func ReadFromUser() {
 			continue
 		}
 
-		packet, err := parse(message)
-		if err == nil && packet != nil {
-			packet.Send()
-		} else if err != nil {
-			PrintToScreen(err.Error())
-		}
+		parse(message)
 	}
 }
 
-func parse(message string) (*icb.Packet, error) {
+func parse(message string) {
 	if strings.HasPrefix(message, "/") { // handle commands
 		message = message[1:]
 		command := strings.SplitN(message, " ", 3)
@@ -36,20 +30,19 @@ func parse(message string) (*icb.Packet, error) {
 		switch command[0] {
 		case "beep":
 			{
-				return beep(command)
+				beep(command)
 			}
 		case "m": // send a private message to a user
 			{
 				privateMessage(command)
-				return nil, nil
 			}
 		case "w": // obtain a listing of who is on
 			{
-				return globalWho(command), nil
+				who(command)
 			}
 		case "g": // join a group
 			{
-				return join(command)
+				join(command)
 			}
 		case "q": // quit
 			{
@@ -57,21 +50,20 @@ func parse(message string) (*icb.Packet, error) {
 			}
 		default:
 			{
-				return nil, errors.New("Unrecognized command \n'/" + message + "'\n")
+				PrintToScreen("Unrecognized command \n'/" + message + "'\n")
 			}
 		}
+	} else { // by defualt send a public message to the channel
+		publicMessage(message)
 	}
-	// by defualt send a public message to the channel
-	publicMessage(message)
-	return nil, nil
 }
 
-func beep(parameters []string) (*icb.Packet, error) {
+func beep(parameters []string) {
 	if len(parameters) != 2 {
 		PrintToScreen("Usage: /beep nick")
+	} else {
+		icb.CreatePacket("beep", parameters[1]).Send()
 	}
-
-	return icb.CreatePacket("beep", parameters[1]), nil
 }
 
 func publicMessage(message string) {
@@ -119,18 +111,18 @@ func messageSplitter(message string) (string, string) {
 	return sendable, message[index+1:]
 }
 
-func globalWho(parameters []string) *icb.Packet {
+func who(parameters []string) {
 	if len(parameters) == 1 { // obtain listing of who is in every group
-		return icb.CreatePacket("global_who")
+		icb.CreatePacket("global_who").Send()
+	} else { // listing for who is in a particular group or group a user is in
+		icb.CreatePacket("local_who", parameters[1]).Send()
 	}
-	// listing for who is in a particular group or group a user is in
-	return icb.CreatePacket("local_who", parameters[1])
 }
 
-func join(parameters []string) (*icb.Packet, error) {
-	if len(parameters) != 1 {
-		return nil, errors.New("Usage: /g group")
+func join(parameters []string) {
+	if len(parameters) != 2 {
+		PrintToScreen("Usage: /g group")
+	} else {
+		icb.CreatePacket("join", parameters[1]).Send()
 	}
-
-	return icb.CreatePacket("join", parameters[1]), nil
 }
