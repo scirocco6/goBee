@@ -7,7 +7,7 @@ func ConnectToServer() {
 	icb.Connect("default.icb.net", "7326")
 	_ = ReadLengthByteFromConnection // read the protocol version then ignore it :)
 
-	loginPacket := icb.CreatePacket("login", "goBee", "goBee6", "goGroup", "login", "\000")
+	loginPacket := icb.CreatePacket("login", "goBee", "goBee7", "goGroup", "login", "\000")
 	loginPacket.Send()
 }
 

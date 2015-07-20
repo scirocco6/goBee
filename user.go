@@ -1,8 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"io"
+	"os"
 	"strings"
+
+	"golang.org/x/crypto/ssh/terminal"
 
 	"bitbucket.org/scirocco6/icb"
 	"github.com/bobappleyard/readline"
@@ -10,8 +14,30 @@ import (
 
 // ReadFromUser is the main user input thread
 func ReadFromUser() {
+	sane, _ := terminal.GetState(0)
+	defer terminal.Restore(0, sane)
+
 	for {
+		terminal.MakeRaw(0)
+		var buffer = make([]byte, 1)
+		os.Stdin.Read(buffer[:])
+
+		fmt.Printf("byte was '%c'\n", buffer[0])
+		terminal.Restore(0, sane)
+
+		num, err := os.Stdin.Write(buffer)
+		os.Stdin.Seek(1, os.SEEK_CUR)
+
+		fmt.Printf("Wrote %d bytes\n", num)
+
+		if err != nil {
+			fmt.Println("unreadbyte error was " + err.Error())
+		}
+
+		screenMutex.Lock()
 		message, err := readline.String("")
+		screenMutex.Unlock()
+
 		if err == io.EOF {
 			break
 		}
