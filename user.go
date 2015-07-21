@@ -1,6 +1,8 @@
 package main
 
 import (
+	// #include "selectStdin.h"
+	"C"
 	"io"
 	"strings"
 
@@ -17,7 +19,7 @@ func ReadFromUser() {
 
 	for {
 		terminal.MakeRaw(0)
-		WaitForKeyStdin()
+		C.selectStdin()
 		terminal.Restore(0, sane)
 
 		screenMutex.Lock()
