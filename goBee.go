@@ -18,7 +18,7 @@ func main() {
 	fmt.Println("Connecting...")
 	ConnectToServer()
 
-	runtime.GOMAXPROCS(2)
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	ReadFromServer()
 	ReadFromUser()
 }
@@ -41,7 +41,5 @@ func PrintToScreen(message string) {
 }
 
 func cleanExit() {
-	// restore terminal on program exit
-
 	os.Exit(1)
 }

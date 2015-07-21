@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"io"
-	"os"
 	"strings"
 
 	"golang.org/x/crypto/ssh/terminal"
@@ -19,20 +17,8 @@ func ReadFromUser() {
 
 	for {
 		terminal.MakeRaw(0)
-		var buffer = make([]byte, 1)
-		os.Stdin.Read(buffer[:])
-
-		fmt.Printf("byte was '%c'\n", buffer[0])
+		WaitForKeyStdin()
 		terminal.Restore(0, sane)
-
-		num, err := os.Stdin.Write(buffer)
-		os.Stdin.Seek(1, os.SEEK_CUR)
-
-		fmt.Printf("Wrote %d bytes\n", num)
-
-		if err != nil {
-			fmt.Println("unreadbyte error was " + err.Error())
-		}
 
 		screenMutex.Lock()
 		message, err := readline.String("")
