@@ -17,6 +17,9 @@ func ReadFromUser() {
 	sane, _ := terminal.GetState(0)
 	defer terminal.Restore(0, sane)
 
+	readline.Completer = NickCompleter
+	readline.CompletionAppendChar = ' '
+
 	for {
 		terminal.MakeRaw(0)
 		C.selectStdin()
@@ -97,6 +100,7 @@ func privateMessage(parameters []string) {
 		PrintToScreen("Usage: /m nick message")
 	}
 
+	PushNick(parameters[1])
 	sendPrivateMessage(parameters[1], parameters[2])
 }
 
