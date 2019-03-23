@@ -7,13 +7,19 @@ import (
 	"runtime"
 	"sync"
 	"syscall"
+
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 var screenMutex = &sync.Mutex{} // global lock for screen output
+var sane *terminal.State
 
 func main() {
 	catchSignals()
 	defer cleanExit()
+
+	sane, _ = terminal.GetState(0)
+	defer terminal.Restore(0, sane)
 
 	fmt.Println("Connecting...")
 	ConnectToServer()
@@ -36,7 +42,10 @@ func catchSignals() {
 // PrintToScreen locks the screen mutex then prints the string it is passed
 func PrintToScreen(message string) {
 	screenMutex.Lock()
+	inSane, _ := terminal.GetState(0)
+	terminal.Restore(0, sane)
 	fmt.Println(message)
+	terminal.Restore(0, inSane)
 	screenMutex.Unlock()
 }
 

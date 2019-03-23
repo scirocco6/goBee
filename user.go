@@ -14,9 +14,6 @@ import (
 
 // ReadFromUser is the main user input thread
 func ReadFromUser() {
-	sane, _ := terminal.GetState(0)
-	defer terminal.Restore(0, sane)
-
 	readline.Completer = NickCompleter
 	readline.CompletionAppendChar = ' '
 
