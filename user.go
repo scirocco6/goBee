@@ -1,10 +1,10 @@
 package main
 
 import (
-	// #include "selectStdin.h"
 	"C"
 	"io"
 	"strings"
+	"syscall"
 
 	"golang.org/x/crypto/ssh/terminal"
 
@@ -17,12 +17,23 @@ func ReadFromUser() {
 	readline.Completer = NickCompleter
 	readline.CompletionAppendChar = ' '
 
+	var rfdset syscall.FdSet
+	for i := 0; i < 16; i++ {
+		rfdset.Bits[i] = 0
+	}
+	rfdset.Bits[0] = 1 // stdin id fileno 0
+
 	for {
 		terminal.MakeRaw(0)
-		C.selectStdin()
-		terminal.Restore(0, sane)
+		selerr := syscall.Select(1, &rfdset, nil, nil, nil)
+		if selerr != nil {
+			break
+			//			log.Warning(selerr) // unsure what if anything could cause select to error here
+		}
 
 		screenMutex.Lock()
+		terminal.Restore(0, sane)
+
 		message, err := readline.String("")
 		screenMutex.Unlock()
 
