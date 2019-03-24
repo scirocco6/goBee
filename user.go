@@ -21,7 +21,7 @@ func ReadFromUser() {
 	for i := 0; i < 16; i++ {
 		rfdset.Bits[i] = 0
 	}
-	rfdset.Bits[0] = 1 // stdin id fileno 0
+	rfdset.Bits[0] = 1
 
 	for {
 		terminal.MakeRaw(0)
