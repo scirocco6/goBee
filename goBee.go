@@ -39,6 +39,7 @@ func catchSignals() {
 	}()
 }
 
+// This should be reworked as a gofunc reading from a channel
 // PrintToScreen locks the screen mutex then prints the string it is passed
 func PrintToScreen(message string) {
 	screenMutex.Lock()
