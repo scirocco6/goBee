@@ -1,6 +1,6 @@
 package main
 
-import "bitbucket.org/scirocco6/icb"
+import "github.com/scirocco6/icb"
 
 // ConnectToServer returns a connection to the icb server
 func ConnectToServer() {

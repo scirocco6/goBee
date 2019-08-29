@@ -8,7 +8,7 @@ import (
 
 	"golang.org/x/crypto/ssh/terminal"
 
-	"bitbucket.org/scirocco6/icb"
+	"github.com/scirocco6/icb"
 	"github.com/bobappleyard/readline"
 )
 
